@@ -26,31 +26,41 @@
     }
     #box {
       background-color: #ffffff;
-      border-radius: 20px;
-      margin-top: 20px;
-      height: calc(100% - 160px);
+      border-top-right-radius: 20px;
+      border-top-left-radius: 20px;
+      height: calc(100% - 90px);
       width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      box-shadow: 8px 8px black;
+      /* box-shadow: 8px 8px black; */
+      border: black 2px solid;
     }
 
     input {
-      margin-top: 50px;
+      margin-top: 30px;
+      margin-bottom: 20px;
       height: 40px;
       width: 500px;
       text-align: center;
       font-size: 30px;
-      border-radius: 16px;
+      border-radius: 40px;
       background-color: #ffffff;
-      box-shadow: 6px 6px black;
+      /* box-shadow: 0px 4px 4px black; */
       border: none;
       outline: none;
+      transition: all 0.3s;
+      border: black 2px solid;
     }
 
+    /* input:hover {
+      margin-top: 28px;
+      margin-bottom: 22px;
+      box-shadow: 0px 6px 4px black;
+    } */
+
     input:active {
-      border: none;
+      border: black 2px solid;
       outline: none;
     }
 
@@ -59,12 +69,18 @@
       font-size: 30px;
     }
 
+    #buttonBox {
+      height: 60%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     button {
       width: 300px;
       height: 300px;
       font-size: 50px;
-      margin-top: 50px;
-      margin-bottom: 30px;
       appearance: none;
       background-color: #ffffff;
       border-radius: 40em;
@@ -182,18 +198,20 @@
         maxlength="15"
       />
       <div id="box">
-        <button
-          :disabled="name == ''"
-          role="button"
-          @mousedown="updateButton(1)"
-          @touchstart="updateButton(1)"
-          @mouseup="updateButton(0)"
-          @touchend="updateButton(0)"
-          @mouseout="updateButton(0)"
-          :style="{ width: buttonSize, height: buttonSize }"
-        >
-          {{count + pressed}}
-        </button>
+        <div id="buttonBox">
+          <button
+            :disabled="name == ''"
+            role="button"
+            @mousedown="updateButton(1)"
+            @touchstart="updateButton(1)"
+            @mouseup="updateButton(0)"
+            @touchend="updateButton(0)"
+            @mouseout="updateButton(0)"
+            :style="{ width: buttonSize, height: buttonSize }"
+          >
+            {{count + pressed}}
+          </button>
+        </div>
         <li v-for="button in buttonInfo">{{button.name}}</li>
       </div>
     </div>
@@ -233,7 +251,7 @@
           }
         },
         async updateButton(num) {
-          this.pressed = num;
+          if (this.name != "") this.pressed = num;
         },
         async addButton() {
           axios
