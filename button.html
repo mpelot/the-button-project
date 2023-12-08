@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Button Project</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <style>
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    button {
+      width: 300px;
+      height: 300px;
+      font-size: 50px;
+      margin-top: 50px;
+      margin-bottom: 30px;
+    }
+    input {
+      margin-top: 50px;
+      height: 40px;
+      width: 500px;
+      text-align: center;
+      font-size: 30px;
+    }
+    li {
+      list-style-type: none;
+      font-size: 30px;
+    }
+
+    /* CSS */
+    button {
+      appearance: none;
+      background-color: #ffffff;
+      border-radius: 40em;
+      border-style: none;
+      box-shadow: #adcfff 0 -48px 24px inset;
+      box-sizing: border-box;
+      color: #000000;
+      cursor: pointer;
+      display: inline-block;
+      font-size: 8rem;
+      color: #1d1d1d;
+      font-family: -apple-system, sans-serif;
+      font-weight: 700;
+      padding: 1rem 1.3rem;
+      text-align: center;
+      text-decoration: none;
+      transition: all 300ms, transform 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      border: solid black 1px;
+      position: relative;
+      z-index: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active {
+      transform: scale(1.025);
+    }
+
+    button:active:after {
+      box-shadow: #adcfff 0 -24px 18px inset;
+    }
+
+    button:active:before {
+      content: "";
+      background: linear-gradient(
+        90deg,
+        #ff0000,
+        #ff7300,
+        #fffb00,
+        #48ff00,
+        #00ffd5,
+        #002bff,
+        #7a00ff,
+        #ff00c8,
+        #ff0000
+      );
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      background-size: 400%;
+      z-index: -1;
+      filter: blur(8px);
+      -webkit-filter: blur(8px);
+      width: calc(100% + 16px);
+      height: calc(100% + 16px);
+      animation: glowing-button 20s linear infinite;
+      transition: opacity 0.3s ease-in-out;
+      border-radius: 40em;
+    }
+
+    @keyframes glowing-button {
+      0% {
+        background-position: 0 0;
+      }
+      50% {
+        background-position: 400% 0;
+      }
+      100% {
+        background-position: 0 0;
+      }
+    }
+
+    button:after {
+      background-color: #ffffff;
+      box-shadow: #adcfff 0 -48px 24px inset;
+
+      z-index: -1;
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      border-radius: 40em;
+    }
+
+    @media only screen and (max-width: 600px) {
+      input {
+        width: 300px;
+      }
+    }
+  </style>
+  <body>
+    <div id="app">
+      <input type="text" v-model="name" placeholder="Name" maxlength="15" />
+      <button
+        role="button"
+        @mousedown="updateButton(1)"
+        @touchstart="updateButton(1)"
+        @mouseup="updateButton(0)"
+        @touchend="updateButton(0)"
+        @mouseout="updateButton(0)"
+        :style="{ width: buttonSize, height: buttonSize }"
+      >
+        {{count + pressed}}
+      </button>
+      <li v-for="button in buttonInfo">{{button.name}}</li>
+    </div>
+  </body>
+
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        pressed: 0,
+        name: "",
+        latePressed: 0,
+        lastPressed: 0,
+        buttonInfo: [],
+        id: "",
+        count: 0,
+      },
+      created() {
+        this.loadInfo();
+      },
+      methods: {
+        async loadInfo() {
+          try {
+            let response = await axios.get("/buttonInfo");
+            this.buttonInfo = response.data;
+            this.count = this.buttonInfo.length - this.latePressed;
+            if (this.pressed != this.lastPressed) {
+              if (this.pressed == 1) this.addButton();
+              else this.deleteButton();
+            }
+            this.lastPressed = this.pressed;
+            setTimeout(() => {
+              this.loadInfo();
+            }, 100);
+          } catch (err) {
+            console.log(err);
+          }
+        },
+        async updateButton(num) {
+          this.pressed = num;
+        },
+        async addButton() {
+          axios
+            .post("/addButton", {
+              name: this.name,
+            })
+            .then((res) => {
+              this.id = res.data._id;
+              console.log(res);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+          this.latePressed = this.pressed;
+        },
+        async deleteButton() {
+          let url = "/delete/" + this.id;
+          axios
+            .get(url, {})
+            .then(function (response) {
+              console.log(response);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+          this.latePressed = this.pressed;
+        },
+      },
+      computed: {
+        buttonSize() {
+          return this.count * 20 + 200 + "px";
+        },
+      },
+    });
+  </script>
+</html>
