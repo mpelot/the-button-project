@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Button Project</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <style>
+    body {
+      margin: 0;
+      background-color: white;
+      height: 100%;
+      font-family: "Noto Sans", "sans-serif";
+    }
+    #app {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      margin-top: 0;
+      height: 100vh;
+      width: 100%;
+      max-width: 100vw;
+    }
+    button {
+      font-size: 3em;
+    }
+  </style>
+  <body>
+    <div id="app">
+      <button @click="loadInfo">RESET</button>
+    </div>
+  </body>
+
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        buttonInfo: [],
+      },
+      methods: {
+        async loadInfo() {
+          try {
+            let response = await axios.get("/buttonInfo");
+            this.buttonInfo = response.data;
+            for (let i = 0; i < this.buttonInfo.length; i++) {
+              this.deleteButton(this.buttonInfo[i]._id);
+            }
+          } catch (err) {
+            console.log(err);
+          }
+        },
+        async deleteButton(id) {
+          let url = "/delete/" + id;
+          axios
+            .get(url, {})
+            .then(function (response) {
+              console.log(response);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        },
+      },
+    });
+  </script>
+</html>
